@@ -62,7 +62,7 @@ main{max-width:1150px;margin:-52px auto 0;padding:0 14px 90px;position:relative}
 <div id="app"></div>
 <script>
 /* ===== الإعداد: ضع رابط Apps Script Web App هنا ===== */
-const API = 'https://script.google.com/macros/s/AKfycbyPQqHr8pLLA5_6nYy0_E-TqhQ1HJUM9OJN8WzGWQh1it3c82EYimleXio0IawF4gLP/exec';
+const API = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
 
 const CATS = {rent:'للإيجار', sale:'للبيع', invest:'استثمار', contract:'مقاولاتي'};
 const RES = ['house','apt','farm','rest','shop'];
@@ -138,7 +138,7 @@ function drawMain() {
   <div class="bar"><input id="q" placeholder="بحث..." value="${esc(S.q)}" oninput="S.q=this.value;drawList()">
    <select onchange="S.area=this.value;drawList()"><option value="all">كل المناطق</option>${S.areas.map(a => `<option ${S.area === a ? 'selected' : ''}>${esc(a)}</option>`).join('')}</select></div>
   ${types.length ? `<div class="chips"><span class="chip ${S.type === 'all' ? 'on' : ''}" onclick="S.type='all';drawMain()">الكل</span>${types.map(t => `<span class="chip ${S.type === t ? 'on' : ''}" onclick="S.type='${t}';drawMain()">${TN[t]}</span>`).join('')}</div>` : ''}
-  <div class="grid" id="gl"></div></main>${perm('add') ? '<button class="btn fab" onclick="form()">＋ تسجيل عقار</button>' : ''}<div id="mo"></div>`;
+  <div class="grid" id="gl"></div></main>${perm('add') ? '<button class="btn fab" onclick="propForm()">＋ تسجيل عقار</button>' : ''}<div id="mo"></div>`;
   drawList();
 }
 function drawList() {
@@ -164,7 +164,7 @@ function detail(id) {
   <div style="display:flex;gap:8px;margin:10px 0;flex-wrap:wrap">${p.map ? `<a class="btn l" style="text-decoration:none" target="_blank" rel="noopener" href="${esc(p.map)}">🗺️ الموقع</a>` : ''}${p.video ? `<a class="btn l" style="text-decoration:none" target="_blank" rel="noopener" href="${esc(p.video)}">▶️ فيديو</a>` : ''}</div>
   <div class="ag">${p.agentPhoto ? `<img src="${esc(p.agentPhoto)}">` : '<div class="av"></div>'}<div><small style="color:var(--mut)">المندوب المسجّل</small><br><b>${esc(p.agentName)}</b></div>
   <a class="btn" style="text-decoration:none" href="tel:${tel}">📞</a><a class="btn" style="text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/${tel}">💬</a></div>
-  <div style="display:flex;gap:8px">${canMod(p, 'edit') ? `<button class="btn" onclick="form('${p.id}')">تعديل</button>` : ''}${canMod(p, 'del') ? `<button class="btn r" onclick="del('${p.id}')">حذف</button>` : ''}</div>`);
+  <div style="display:flex;gap:8px">${canMod(p, 'edit') ? `<button class="btn" onclick="propForm('${p.id}')">تعديل</button>` : ''}${canMod(p, 'del') ? `<button class="btn r" onclick="del('${p.id}')">حذف</button>` : ''}</div>`);
 }
 async function del(id) {
   if (!confirm('حذف العقار نهائياً؟')) return;
@@ -178,7 +178,7 @@ function inp(d, v) {
   if (t === 's') return `<label>${l}<select id="${id}"><option value="">—</option>${o.map(x => `<option ${v === x ? 'selected' : ''}>${x}</option>`).join('')}</select></label>`;
   return `<label>${l}<input id="${id}" ${t === 'n' ? 'type="number" inputmode="decimal"' : ''} value="${esc(v)}"></label>`;
 }
-function form(id) {
+function propForm(id) {
   const p = id ? S.props.find(x => x.id === id) : {category:'rent', type:'house', currency:'USD', status:'متاح', data:{}, images:[]};
   IM = [...p.images];
   modal(`<h2 style="margin-bottom:12px">${id ? 'تعديل عقار' : 'تسجيل عقار جديد'}</h2><div class="f">
