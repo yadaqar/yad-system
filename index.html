@@ -64,14 +64,14 @@ main{max-width:1150px;margin:-52px auto 0;padding:0 14px 90px;position:relative}
 <div id="app"></div>
 <script>
 /* ===== الإعداد: ضع رابط Apps Script Web App هنا ===== */
-const API = 'https://script.google.com/macros/s/AKfycbx-OqakdjdCr5_-FTZDln0vOZJ5wKtjlDpyXHKXS9fwuPuDcMmsB0OltujGx0iNyEHbBQ/exec';
+const API = 'https://script.google.com/macros/s/AKfycbyPQqHr8pLLA5_6nYy0_E-TqhQ1HJUM9OJN8WzGWQh1it3c82EYimleXio0IawF4gLP/exec';
 
 const CATS = {rent:'للإيجار', sale:'للبيع', invest:'استثمار', contract:'مقاولاتي'};
 const RES = ['house','apt','farm','rest','shop'];
 const LANDS = ['land_res','land_agr','land_tour','land_inv'];
 const TYPES = {rent:[...RES,...LANDS,'other'], sale:[...RES,...LANDS,'other'], invest:['land','bldg','proj','other'], contract:['build','finish','maint','other']};
 const TN = {house:'منزل',apt:'شقة',farm:'مزرعة',rest:'مطعم',shop:'محل تجاري',land:'أرض',bldg:'بناية',proj:'مشروع',build:'بناء وإنشاء',finish:'تشطيب وديكور',maint:'صيانة وترميم',land_res:'قطعة أرض سكني',land_agr:'أرض زراعي',land_tour:'أرض سياحي',land_inv:'أرض استثمار',other:'غير ذلك'};
-const tn = p => p.type === 'other' ? (p.data.customType || 'غير ذلك') : tn(p);
+const tn = p => p.type === 'other' ? (p.data.customType || 'غير ذلك') : TN[p.type];
 const YN = ['نعم','لا'];
 const FT = { // الحقول الخاصة بكل نوع عقار: [مفتاح، عنوان، نوع(n/s/t/c)، خيارات]
  house:[['m2','المساحة (م²)','n'],['built','المساحة المبنية (م²)','n'],['floors','عدد الطوابق','n'],['rooms','غرف النوم','n'],['baths','الحمامات','n'],['hall','الصالات','n'],['age','عمر البناء (سنة)','n'],['furn','الأثاث','s',['غير مفروش','مفروش','نصف مفروش']],['park','موقف سيارات','c'],['garden','حديقة','c'],['ac','تكييف','c'],['gen','مولد/طاقة بديلة','c'],['water','خزان ماء','c']],
