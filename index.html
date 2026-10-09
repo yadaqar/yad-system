@@ -91,8 +91,10 @@ const CF = {
 const STAT = ['متاح','محجوز','مؤجّر / مباع'];
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let S = {token:localStorage.yr_t||'', me:null, props:[], areas:[], users:[], cat:'all', type:'all', area:'all', q:''};
-let IM = [], PHOTO = '';
+let S = {token:localStorage.yr_t||'', me:null, props:[], areas:[], users:[], cat:'all', type:'all', area:'all', q:'', reqs:[], view:'props', rs:'all'};
+let IM = [], PHOTO = '', CUR = 'USD';
+const MK = ['deposit','cost','income'];
+function curDraw() { $('#cc').innerHTML = [['USD','دولار $'],['IQD','دينار عراقي']].map(([c,l]) => `<span class="chip ${CUR === c ? 'on' : ''}" onclick="CUR='${c}';curDraw()">${l}</span>`).join(''); }
 
 async function api(action, d = {}) {
   const r = await fetch(API, {method:'POST', body:JSON.stringify({action, token:S.token, ...d})});
@@ -121,19 +123,22 @@ async function login() {
   } catch (e) { $('#le').textContent = e.message; }
 }
 async function load() {
-  try { const r = await api('list'); Object.assign(S, {me:r.me, props:r.props, areas:r.areas, users:r.users}); draw(); }
+  try { const r = await api('list'); Object.assign(S, {me:r.me, props:r.props, reqs:r.reqs || [], areas:r.areas, users:r.users}); draw(); }
   catch (e) { if (S.token) alert(e.message); draw(); }
 }
 
+const hdr = () => `<header><div class="top"><div class="logo">${LOGO}<div><b>ياد رويال</b><small>للعقارات والاستثمار</small></div></div>
+   <div class="u">${S.me.photo ? `<img src="${esc(S.me.photo)}">` : '<div class="av"></div>'}<span>${esc(S.me.name)}</span>
+   ${S.me.role === 'admin' ? '<button class="btn g" onclick="agents()">المندوبون</button>' : ''}<button class="btn g" onclick="logout()">خروج</button></div></div></header>`;
+const tabs = () => `<div class="stats" style="grid-template-columns:1fr 1fr;margin-bottom:10px"><div class="st ${S.view === 'props' ? 'on' : ''}" onclick="S.view='props';draw()"><b>${S.props.length}</b><span>🏠 العقارات</span></div><div class="st ${S.view === 'reqs' ? 'on' : ''}" onclick="S.view='reqs';draw()"><b>${S.reqs.length}</b><span>📋 طلبات الزبائن</span></div></div>`;
 function drawMain() {
+  if (S.view === 'reqs') return drawReqs();
   const cnt = c => S.props.filter(p => c === 'all' || p.category === c).length;
   let list = S.props.filter(p => (S.cat === 'all' || p.category === S.cat) && (S.type === 'all' || p.type === S.type) && (S.area === 'all' || p.area === S.area)
     && (!S.q || (p.title + p.area + p.agentName + p.desc).includes(S.q)));
   const types = S.cat === 'all' ? [] : TYPES[S.cat];
-  $('#app').innerHTML = `<header><div class="top"><div class="logo">${LOGO}<div><b>ياد رويال</b><small>للعقارات والاستثمار</small></div></div>
-   <div class="u">${S.me.photo ? `<img src="${esc(S.me.photo)}">` : '<div class="av"></div>'}<span>${esc(S.me.name)}</span>
-   ${S.me.role === 'admin' ? '<button class="btn g" onclick="agents()">المندوبون</button>' : ''}<button class="btn g" onclick="logout()">خروج</button></div></div></header>
-  <main><div class="stats"><div class="st ${S.cat === 'all' ? 'on' : ''}" onclick="setCat('all')"><b>${cnt('all')}</b><span>كل الأملاك</span></div>
+  $('#app').innerHTML = `${hdr()}
+  <main>${tabs()}<div class="stats"><div class="st ${S.cat === 'all' ? 'on' : ''}" onclick="setCat('all')"><b>${cnt('all')}</b><span>كل الأملاك</span></div>
   ${Object.keys(CATS).map(c => `<div class="st ${S.cat === c ? 'on' : ''}" onclick="setCat('${c}')"><b>${cnt(c)}</b><span>${CATS[c]}</span></div>`).join('')}</div>
   <div class="bar"><input id="q" placeholder="بحث..." value="${esc(S.q)}" oninput="S.q=this.value;drawList()">
    <select onchange="S.area=this.value;drawList()"><option value="all">كل المناطق</option>${S.areas.map(a => `<option ${S.area === a ? 'selected' : ''}>${esc(a)}</option>`).join('')}</select></div>
@@ -155,12 +160,13 @@ const closeM = () => $('#mo').innerHTML = '';
 function detail(id) {
   const p = S.props.find(x => x.id === id);
   const defs = [...(FT[p.type] || []), ...(CF[p.category] || [])];
-  const kv = defs.filter(d => p.data[d[0]] !== undefined && p.data[d[0]] !== '' && p.data[d[0]] !== false).map(d => `<div><small>${d[1]}</small>${p.data[d[0]] === true ? 'نعم ✓' : esc(p.data[d[0]])}</div>`).join('');
+  const kv = defs.filter(d => p.data[d[0]] !== undefined && p.data[d[0]] !== '' && p.data[d[0]] !== false).map(d => `<div><small>${d[1]}</small>${p.data[d[0]] === true ? 'نعم ✓' : esc(p.data[d[0]]) + (MK.includes(d[0]) ? (p.currency === 'IQD' ? ' د.ع' : ' $') : '')}</div>`).join('');
   const tel = p.agentPhone.replace(/\D/g, '');
   modal(`<div style="display:flex;justify-content:space-between"><h2>${esc(p.title)}</h2><button class="btn l" onclick="closeM()">✕</button></div>
   ${p.images.length ? `<div class="gal" style="margin-top:10px">${p.images.map(i => `<img src="${esc(i)}">`).join('')}</div>` : ''}
   <div class="pr" style="margin-top:10px">${money(p)}</div><p style="color:var(--mut)">${CATS[p.category]} · ${TN[p.type]} · 📍 ${esc(p.area)} · ${esc(p.status)}</p>
-  <div class="kv">${kv}</div><p style="white-space:pre-wrap">${esc(p.desc)}</p>
+  <div class="kv">${kv}</div>
+  ${(S.me.role === 'admin' || p.agentId === S.me.id) && (p.data.ownerName || p.data.ownerPhone || p.data.ownerAddr) ? `<div class="ag" style="display:block;line-height:1.9"><b>🔒 بيانات المالك (تظهر للمدير والمندوب المسجّل فقط)</b><br>👤 ${esc(p.data.ownerName)}<br>📞 ${p.data.ownerPhone ? `<a href="tel:${esc(String(p.data.ownerPhone).replace(/\D/g, ''))}" style="color:var(--gold)">${esc(p.data.ownerPhone)}</a>` : ''}<br>🏠 ${esc(p.data.ownerAddr)}</div>` : ''}<p style="white-space:pre-wrap">${esc(p.desc)}</p>
   <div style="display:flex;gap:8px;margin:10px 0;flex-wrap:wrap">${p.map ? `<a class="btn l" style="text-decoration:none" target="_blank" rel="noopener" href="${esc(p.map)}">🗺️ الموقع</a>` : ''}${p.video ? `<a class="btn l" style="text-decoration:none" target="_blank" rel="noopener" href="${esc(p.video)}">▶️ فيديو</a>` : ''}</div>
   <div class="ag">${p.agentPhoto ? `<img src="${esc(p.agentPhoto)}">` : '<div class="av"></div>'}<div><small style="color:var(--mut)">المندوب المسجّل</small><br><b>${esc(p.agentName)}</b></div>
   <a class="btn" style="text-decoration:none" href="tel:${tel}">📞</a><a class="btn" style="text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/${tel}">💬</a></div>
@@ -180,15 +186,18 @@ function inp(d, v) {
 }
 function propForm(id) {
   const p = id ? S.props.find(x => x.id === id) : {category:'rent', type:'house', currency:'USD', status:'متاح', data:{}, images:[]};
-  IM = [...p.images];
+  IM = [...p.images]; CUR = p.currency || 'USD';
   modal(`<h2 style="margin-bottom:12px">${id ? 'تعديل عقار' : 'تسجيل عقار جديد'}</h2><div class="f">
   <label>الفئة<select id="fc" onchange="fields()">${Object.keys(CATS).map(c => `<option value="${c}" ${p.category === c ? 'selected' : ''}>${CATS[c]}</option>`).join('')}</select></label>
   <label>نوع العقار<select id="ft" onchange="fields()"></select></label>
   <label class="w">العنوان<input id="fti" value="${esc(p.title)}" placeholder="مثال: شقة فاخرة قرب الشارع العام"></label>
   <div class="row w"><label>المنطقة<select id="fa">${S.areas.map(a => `<option ${p.area === a ? 'selected' : ''}>${esc(a)}</option>`).join('')}</select></label><button class="btn l" onclick="newArea()">＋ منطقة</button></div>
   <label>السعر<input id="fp" type="number" inputmode="decimal" value="${esc(p.price)}"></label>
-  <label>العملة<select id="fcu"><option value="USD" ${p.currency === 'USD' ? 'selected' : ''}>دولار $</option><option value="IQD" ${p.currency === 'IQD' ? 'selected' : ''}>دينار عراقي</option></select></label>
+  <div><label>العملة</label><div class="chips" id="cc" style="margin:6px 0 0"></div></div>
   <div class="w f" id="dyn" style="padding:0"></div>
+  <div class="w"><b>🔒 بيانات صاحب العقار</b></div>
+  <label>اسم صاحب العقار<input id="fon" value="${esc(p.data.ownerName)}"></label><label>رقم هاتف المالك<input id="fop" inputmode="tel" value="${esc(p.data.ownerPhone)}"></label>
+  <label class="w">عنوان سكن المالك<input id="foa" value="${esc(p.data.ownerAddr)}"></label>
   <label>الحالة<select id="fs">${STAT.map(s => `<option ${p.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></label>
   <label>رابط الموقع (Google Maps)<input id="fm" value="${esc(p.map)}" placeholder="https://maps.google.com/..."></label>
   <label class="w">رابط فيديو (YouTube / Drive ...)<input id="fv" value="${esc(p.video)}"></label>
@@ -197,7 +206,7 @@ function propForm(id) {
   <div class="ph w" id="ph"></div>
   <label class="w">ملاحظات ووصف<textarea id="fd" rows="3">${esc(p.desc)}</textarea></label></div>
   <div style="display:flex;gap:8px;margin-top:14px"><button class="btn" id="sv" onclick="saveP('${id || ''}')">حفظ</button><button class="btn l" onclick="closeM()">إلغاء</button></div><div class="err" id="fe"></div>`);
-  fields(p.type, p.data); phs();
+  fields(p.type, p.data); phs(); curDraw();
 }
 function fields(t, vals) {
   const c = $('#fc').value, ts = TYPES[c], cur = t && ts.includes(t) ? t : (ts.includes($('#ft').value) ? $('#ft').value : ts[0]);
@@ -231,8 +240,9 @@ async function saveP(id) {
   try {
     const data = {};
     [...FT[t], ...CF[c]].forEach(d => { const e = $('#f_' + d[0]); data[d[0]] = d[2] === 'c' ? e.checked : e.value; });
+    data.ownerName = $('#fon').value.trim(); data.ownerPhone = $('#fop').value.trim(); data.ownerAddr = $('#foa').value.trim();
     const images = []; for (const s of IM) images.push(await upImg(s));
-    await api('save', {prop:{id, category:c, type:t, title:$('#fti').value.trim(), area:$('#fa').value, price:$('#fp').value, currency:$('#fcu').value,
+    await api('save', {prop:{id, category:c, type:t, title:$('#fti').value.trim(), area:$('#fa').value, price:$('#fp').value, currency:CUR,
       status:$('#fs').value, data, images, video:$('#fv').value.trim(), map:$('#fm').value.trim(), desc:$('#fd').value}});
     closeM(); load();
   } catch (e) { $('#fe').textContent = e.message; b.disabled = false; b.textContent = 'حفظ'; }
@@ -268,6 +278,60 @@ async function saveU(id) {
   } catch (e) { $('#fe').textContent = e.message; b.disabled = false; }
 }
 async function delU(id) { if (!confirm('حذف المندوب؟')) return; try { await api('deleteUser', {id}); await load(); agents(); } catch (e) { alert(e.message); } }
+
+/* ===== طلبات الزبائن ===== */
+const RST = ['جديد','قيد المتابعة','تم التنفيذ','ملغي'];
+const sym = c => c === 'IQD' ? ' د.ع' : ' $';
+const bud = r => (r.min || r.max) ? `${r.min ? Number(r.min).toLocaleString('en') : '0'} – ${r.max ? Number(r.max).toLocaleString('en') : 'مفتوح'}${sym(r.currency)}` : 'غير محددة';
+function matches(r) {
+  return S.props.filter(p => p.category === r.category && p.status === 'متاح' && (!r.type || p.type === r.type) && (!r.area || p.area === r.area)
+    && p.currency === r.currency && (!r.max || Number(p.price) <= Number(r.max)) && (!r.min || Number(p.price) >= Number(r.min)));
+}
+function drawReqs() {
+  const list = S.reqs.filter(r => S.rs === 'all' || r.status === S.rs);
+  $('#app').innerHTML = `${hdr()}<main>${tabs()}<div class="chips"><span class="chip ${S.rs === 'all' ? 'on' : ''}" onclick="S.rs='all';drawReqs()">الكل</span>
+  ${RST.map(t => `<span class="chip ${S.rs === t ? 'on' : ''}" onclick="S.rs='${t}';drawReqs()">${t}</span>`).join('')}</div>
+  <div class="grid">${list.length ? list.map(r => `<div class="pc" onclick="reqDetail('${r.id}')"><div class="pb"><div style="display:flex;justify-content:space-between;gap:6px"><h3>👤 ${esc(r.name)}</h3><span class="tag" style="position:static;white-space:nowrap">${esc(r.status)}</span></div>
+  <p style="color:var(--mut);font-size:14px;margin:4px 0">${CATS[r.category]} · ${TN[r.type] || 'أي نوع'} · 📍 ${esc(r.area || 'أي منطقة')}</p><div class="pr">${bud(r)}</div>
+  <div class="mt"><span>📞 ${esc(r.phone)}</span><span>${esc(r.agentName)}</span></div><div style="margin-top:8px;font-size:13px;color:var(--ok)">✅ ${matches(r).length} عقار مطابق</div></div></div>`).join('') : '<div class="empty" style="grid-column:1/-1">لا توجد طلبات</div>'}</div></main>
+  ${perm('add') ? '<button class="btn fab" onclick="reqForm()">＋ طلب زبون</button>' : ''}<div id="mo"></div>`;
+}
+function reqDetail(id) {
+  const r = S.reqs.find(x => x.id === id), m = matches(r), tel = r.phone.replace(/\D/g, '');
+  modal(`<div style="display:flex;justify-content:space-between"><h2>👤 ${esc(r.name)}</h2><button class="btn l" onclick="closeM()">✕</button></div>
+  <p style="color:var(--mut)">${CATS[r.category]} · ${TN[r.type] || 'أي نوع'} · 📍 ${esc(r.area || 'أي منطقة')} · ${esc(r.status)}</p>
+  <div class="pr" style="margin:6px 0">الميزانية: ${bud(r)}</div><p style="white-space:pre-wrap">${esc(r.notes)}</p>
+  <div class="ag"><div><small style="color:var(--mut)">المندوب المسؤول</small><br><b>${esc(r.agentName)}</b></div><a class="btn" style="text-decoration:none" href="tel:${tel}">📞 اتصال</a><a class="btn" style="text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/${tel}">💬</a></div>
+  <h3 style="margin:12px 0 6px">✅ عقارات مطابقة (${m.length})</h3>
+  ${m.map(p => `<div class="ag" style="cursor:pointer" onclick="detail('${p.id}')"><div><b>${esc(p.title)}</b><br><small>📍 ${esc(p.area)} · ${TN[p.type]}</small></div><b style="color:var(--gold)">${money(p)}</b></div>`).join('') || '<p class="empty" style="padding:14px">لا يوجد عقار متاح مطابق حالياً</p>'}
+  <div style="display:flex;gap:8px;margin-top:10px">${canMod(r, 'edit') ? `<button class="btn" onclick="reqForm('${r.id}')">تعديل</button>` : ''}${canMod(r, 'del') ? `<button class="btn r" onclick="delR('${r.id}')">حذف</button>` : ''}</div>`);
+}
+function rTypes(t) { const c = $('#rc').value; $('#rt').innerHTML = '<option value="">أي نوع</option>' + TYPES[c].map(x => `<option value="${x}" ${x === t ? 'selected' : ''}>${TN[x]}</option>`).join(''); }
+function reqForm(id) {
+  const r = id ? S.reqs.find(x => x.id === id) : {category:'rent', type:'', area:'', currency:'USD', status:'جديد'};
+  CUR = r.currency || 'USD';
+  modal(`<h2 style="margin-bottom:12px">${id ? 'تعديل طلب' : 'طلب زبون جديد'}</h2><div class="f">
+  <label>اسم الزبون<input id="rn" value="${esc(r.name)}"></label><label>رقم الهاتف<input id="rp" inputmode="tel" value="${esc(r.phone)}"></label>
+  <label>الفئة المطلوبة<select id="rc" onchange="rTypes()">${Object.keys(CATS).map(c => `<option value="${c}" ${r.category === c ? 'selected' : ''}>${CATS[c]}</option>`).join('')}</select></label>
+  <label>نوع العقار<select id="rt"></select></label>
+  <label>المنطقة المفضلة<select id="ra"><option value="">أي منطقة</option>${S.areas.map(a => `<option ${r.area === a ? 'selected' : ''}>${esc(a)}</option>`).join('')}</select></label>
+  <div><label>العملة</label><div class="chips" id="cc" style="margin:6px 0 0"></div></div>
+  <label>الميزانية من<input id="rmin" type="number" inputmode="decimal" value="${esc(r.min)}"></label><label>الميزانية إلى<input id="rmax" type="number" inputmode="decimal" value="${esc(r.max)}"></label>
+  <label class="w">حالة الطلب<select id="rst">${RST.map(t => `<option ${r.status === t ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+  <label class="w">المواصفات والملاحظات<textarea id="rno" rows="3" placeholder="غرف، طابق، مساحة، ...">${esc(r.notes)}</textarea></label></div>
+  <div style="display:flex;gap:8px;margin-top:14px"><button class="btn" id="sr" onclick="saveR('${id || ''}')">حفظ</button><button class="btn l" onclick="closeM()">إلغاء</button></div><div class="err" id="fe"></div>`);
+  rTypes(r.type); curDraw();
+}
+async function saveR(id) {
+  if (!$('#rn').value.trim() || !$('#rp').value.trim()) { $('#fe').textContent = 'أدخل اسم الزبون ورقم هاتفه'; return; }
+  const b = $('#sr'); b.disabled = true;
+  try {
+    await api('saveReq', {req:{id, name:$('#rn').value.trim(), phone:$('#rp').value.trim(), category:$('#rc').value, type:$('#rt').value, area:$('#ra').value,
+      min:$('#rmin').value, max:$('#rmax').value, currency:CUR, status:$('#rst').value, notes:$('#rno').value}});
+    closeM(); load();
+  } catch (e) { $('#fe').textContent = e.message; b.disabled = false; }
+}
+async function delR(id) { if (!confirm('حذف الطلب؟')) return; try { await api('deleteReq', {id}); closeM(); load(); } catch (e) { alert(e.message); } }
 
 if (S.token) load(); else draw();
 </script>
