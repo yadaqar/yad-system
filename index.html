@@ -66,8 +66,10 @@ const API = 'https://script.google.com/macros/s/AKfycbyPQqHr8pLLA5_6nYy0_E-TqhQ1
 
 const CATS = {rent:'للإيجار', sale:'للبيع', invest:'استثمار', contract:'مقاولاتي'};
 const RES = ['house','apt','farm','rest','shop'];
-const TYPES = {rent:RES, sale:RES, invest:['land','bldg','proj'], contract:['build','finish','maint']};
-const TN = {house:'منزل',apt:'شقة',farm:'مزرعة',rest:'مطعم',shop:'محل تجاري',land:'أرض',bldg:'بناية',proj:'مشروع',build:'بناء وإنشاء',finish:'تشطيب وديكور',maint:'صيانة وترميم'};
+const LANDS = ['land_res','land_agr','land_tour','land_inv'];
+const TYPES = {rent:[...RES,...LANDS,'other'], sale:[...RES,...LANDS,'other'], invest:['land','bldg','proj','other'], contract:['build','finish','maint','other']};
+const TN = {house:'منزل',apt:'شقة',farm:'مزرعة',rest:'مطعم',shop:'محل تجاري',land:'أرض',bldg:'بناية',proj:'مشروع',build:'بناء وإنشاء',finish:'تشطيب وديكور',maint:'صيانة وترميم',land_res:'قطعة أرض سكني',land_agr:'أرض زراعي',land_tour:'أرض سياحي',land_inv:'أرض استثمار',other:'غير ذلك'};
+const tn = p => p.type === 'other' ? (p.data.customType || 'غير ذلك') : tn(p);
 const YN = ['نعم','لا'];
 const FT = { // الحقول الخاصة بكل نوع عقار: [مفتاح، عنوان، نوع(n/s/t/c)، خيارات]
  house:[['m2','المساحة (م²)','n'],['built','المساحة المبنية (م²)','n'],['floors','عدد الطوابق','n'],['rooms','غرف النوم','n'],['baths','الحمامات','n'],['hall','الصالات','n'],['age','عمر البناء (سنة)','n'],['furn','الأثاث','s',['غير مفروش','مفروش','نصف مفروش']],['park','موقف سيارات','c'],['garden','حديقة','c'],['ac','تكييف','c'],['gen','مولد/طاقة بديلة','c'],['water','خزان ماء','c']],
@@ -80,7 +82,12 @@ const FT = { // الحقول الخاصة بكل نوع عقار: [مفتاح، 
  proj:[['m2','مساحة المشروع (م²)','n'],['stage','مرحلة المشروع','s',['فكرة','تخطيط','قيد التنفيذ','جاهز']],['pkind','نوع المشروع','t'],['lic','تراخيص','c']],
  build:[['m2','المساحة (م²)','n'],['floors','عدد الطوابق','n'],['plan','مخططات جاهزة','c'],['perm','إجازة بناء','c']],
  finish:[['m2','المساحة (م²)','n'],['level','مستوى التشطيب','s',['اقتصادي','متوسط','فاخر']],['plan','تصميم داخلي مشمول','c']],
- maint:[['m2','المساحة (م²)','n'],['kind','نوع العمل','t'],['urgent','مستعجل','c']]
+ maint:[['m2','المساحة (م²)','n'],['kind','نوع العمل','t'],['urgent','مستعجل','c']],
+ land_res:[['m2','المساحة (م²)','n'],['street','عرض الشارع (م)','n'],['corner','قطعة زاوية','c'],['util','خدمات (ماء/كهرباء/مجاري)','c'],['plan','مفرزة / مخطط معتمد','c'],['near','قريبة من (مدرسة، سوق...)','t']],
+ land_agr:[['dunum','المساحة (دونم)','n'],['water','مصدر المياه','s',['بئر','نهر/قناة','شبكة','ديم (أمطار)','لا يوجد']],['trees','عدد الأشجار','n'],['crop','نوع الزراعة','t'],['fence','مسيّجة','c'],['elec','كهرباء','c'],['road','طريق معبّد','c']],
+ land_tour:[['m2','المساحة (م²)','n'],['view','الإطلالة','s',['نهر','جبل','بحيرة','طريق سياحي','غير ذلك']],['spot','قريبة من موقع سياحي','t'],['road','طريق معبّد','c'],['util','خدمات (ماء/كهرباء)','c'],['lic','إمكانية ترخيص سياحي','c']],
+ land_inv:[['m2','المساحة (م²)','n'],['use','الاستخدام المقترح','s',['تجاري','سكني','صناعي','مختلط']],['street','عرض الشارع (م)','n'],['corner','قطعة زاوية','c'],['util','خدمات (ماء/كهرباء)','c'],['plan','مخطط معتمد','c']],
+ other:[['customType','نوع العقار (اكتب هنا)','t'],['m2','المساحة (م²)','n']]
 };
 const CF = {
  rent:[['period','مدة الإيجار','s',['شهري','سنوي','6 أشهر']],['deposit','التأمين','n'],['minterm','أقل مدة عقد','t'],['avail','تاريخ الجاهزية','t']],
@@ -150,7 +157,7 @@ function drawList() {
   const list = S.props.filter(p => (S.cat === 'all' || p.category === S.cat) && (S.type === 'all' || p.type === S.type) && (S.area === 'all' || p.area === S.area)
     && (!S.q || (p.title + p.area + p.agentName + p.desc).includes(S.q)));
   $('#gl').innerHTML = list.length ? list.map(p => `<div class="pc" onclick="detail('${p.id}')"><div class="im" style="${p.images[0] ? `background-image:url('${esc(p.images[0])}')` : ''}">
-   <span class="tag">${CATS[p.category]} · ${TN[p.type]}</span><span class="tag s">${esc(p.status)}</span></div><div class="pb"><h3>${esc(p.title)}</h3><div class="pr">${money(p)}</div>
+   <span class="tag">${CATS[p.category]} · ${tn(p)}</span><span class="tag s">${esc(p.status)}</span></div><div class="pb"><h3>${esc(p.title)}</h3><div class="pr">${money(p)}</div>
    <div class="mt"><span>📍 ${esc(p.area)}</span><span>${p.agentPhoto ? `<img src="${esc(p.agentPhoto)}">` : ''}${esc(p.agentName)}</span></div></div></div>`).join('') : '<div class="empty" style="grid-column:1/-1">لا توجد عقارات</div>';
 }
 const setCat = c => { S.cat = c; S.type = 'all'; drawMain(); };
@@ -160,11 +167,11 @@ const closeM = () => $('#mo').innerHTML = '';
 function detail(id) {
   const p = S.props.find(x => x.id === id);
   const defs = [...(FT[p.type] || []), ...(CF[p.category] || [])];
-  const kv = defs.filter(d => p.data[d[0]] !== undefined && p.data[d[0]] !== '' && p.data[d[0]] !== false).map(d => `<div><small>${d[1]}</small>${p.data[d[0]] === true ? 'نعم ✓' : esc(p.data[d[0]]) + (MK.includes(d[0]) ? (p.currency === 'IQD' ? ' د.ع' : ' $') : '')}</div>`).join('');
+  const kv = defs.filter(d => d[0] !== 'customType' && p.data[d[0]] !== undefined && p.data[d[0]] !== '' && p.data[d[0]] !== false).map(d => `<div><small>${d[1]}</small>${p.data[d[0]] === true ? 'نعم ✓' : esc(p.data[d[0]]) + (MK.includes(d[0]) ? (p.currency === 'IQD' ? ' د.ع' : ' $') : '')}</div>`).join('');
   const tel = p.agentPhone.replace(/\D/g, '');
   modal(`<div style="display:flex;justify-content:space-between"><h2>${esc(p.title)}</h2><button class="btn l" onclick="closeM()">✕</button></div>
   ${p.images.length ? `<div class="gal" style="margin-top:10px">${p.images.map(i => `<img src="${esc(i)}">`).join('')}</div>` : ''}
-  <div class="pr" style="margin-top:10px">${money(p)}</div><p style="color:var(--mut)">${CATS[p.category]} · ${TN[p.type]} · 📍 ${esc(p.area)} · ${esc(p.status)}</p>
+  <div class="pr" style="margin-top:10px">${money(p)}</div><p style="color:var(--mut)">${CATS[p.category]} · ${tn(p)} · 📍 ${esc(p.area)} · ${esc(p.status)}</p>
   <div class="kv">${kv}</div>
   ${(S.me.role === 'admin' || p.agentId === S.me.id) && (p.data.ownerName || p.data.ownerPhone || p.data.ownerAddr) ? `<div class="ag" style="display:block;line-height:1.9"><b>🔒 بيانات المالك (تظهر للمدير والمندوب المسجّل فقط)</b><br>👤 ${esc(p.data.ownerName)}<br>📞 ${p.data.ownerPhone ? `<a href="tel:${esc(String(p.data.ownerPhone).replace(/\D/g, ''))}" style="color:var(--gold)">${esc(p.data.ownerPhone)}</a>` : ''}<br>🏠 ${esc(p.data.ownerAddr)}</div>` : ''}<p style="white-space:pre-wrap">${esc(p.desc)}</p>
   <div style="display:flex;gap:8px;margin:10px 0;flex-wrap:wrap">${p.map ? `<a class="btn l" style="text-decoration:none" target="_blank" rel="noopener" href="${esc(p.map)}">🗺️ الموقع</a>` : ''}${p.video ? `<a class="btn l" style="text-decoration:none" target="_blank" rel="noopener" href="${esc(p.video)}">▶️ فيديو</a>` : ''}</div>
@@ -236,6 +243,7 @@ async function upImg(s) { return s.startsWith('data:') ? (await api('upload', {d
 async function saveP(id) {
   const c = $('#fc').value, t = $('#ft').value, b = $('#sv');
   if (!$('#fti').value.trim()) { $('#fe').textContent = 'أدخل عنوان العقار'; return; }
+  if (t === 'other' && !$('#f_customType').value.trim()) { $('#fe').textContent = 'اكتب نوع العقار'; return; }
   b.disabled = true; b.textContent = 'جارٍ الحفظ ورفع الصور...';
   try {
     const data = {};
@@ -303,7 +311,7 @@ function reqDetail(id) {
   <div class="pr" style="margin:6px 0">الميزانية: ${bud(r)}</div><p style="white-space:pre-wrap">${esc(r.notes)}</p>
   <div class="ag"><div><small style="color:var(--mut)">المندوب المسؤول</small><br><b>${esc(r.agentName)}</b></div><a class="btn" style="text-decoration:none" href="tel:${tel}">📞 اتصال</a><a class="btn" style="text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/${tel}">💬</a></div>
   <h3 style="margin:12px 0 6px">✅ عقارات مطابقة (${m.length})</h3>
-  ${m.map(p => `<div class="ag" style="cursor:pointer" onclick="detail('${p.id}')"><div><b>${esc(p.title)}</b><br><small>📍 ${esc(p.area)} · ${TN[p.type]}</small></div><b style="color:var(--gold)">${money(p)}</b></div>`).join('') || '<p class="empty" style="padding:14px">لا يوجد عقار متاح مطابق حالياً</p>'}
+  ${m.map(p => `<div class="ag" style="cursor:pointer" onclick="detail('${p.id}')"><div><b>${esc(p.title)}</b><br><small>📍 ${esc(p.area)} · ${tn(p)}</small></div><b style="color:var(--gold)">${money(p)}</b></div>`).join('') || '<p class="empty" style="padding:14px">لا يوجد عقار متاح مطابق حالياً</p>'}
   <div style="display:flex;gap:8px;margin-top:10px">${canMod(r, 'edit') ? `<button class="btn" onclick="reqForm('${r.id}')">تعديل</button>` : ''}${canMod(r, 'del') ? `<button class="btn r" onclick="delR('${r.id}')">حذف</button>` : ''}</div>`);
 }
 function rTypes(t) { const c = $('#rc').value; $('#rt').innerHTML = '<option value="">أي نوع</option>' + TYPES[c].map(x => `<option value="${x}" ${x === t ? 'selected' : ''}>${TN[x]}</option>`).join(''); }
