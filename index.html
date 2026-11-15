@@ -15,11 +15,11 @@
  * YAD ROYAL REAL ESTATE — SWISS ARCHITECTURAL PORCELAIN & OBSIDIAN UI (v5.0)
  * ============================================================================ */
 :root {
-  --bg: #f3f5f8;
-  --bg-2: #eaedf3;
+  --bg: #edf1f7;
+  --bg-2: #e2e8f2;
   --surface: #ffffff;
   --surface-2: #f8fafc;
-  --surface-glass: rgba(255, 255, 255, 0.9);
+  --surface-glass: rgba(255, 255, 255, 0.94);
   --ink: #0f172a;
   --ink-2: #334155;
   --mut: #64748b;
@@ -29,18 +29,18 @@
   --gold-bright: #cfa031;
   --gold-deep: #8c630c;
   --gold-soft: rgba(180, 131, 24, 0.1);
-  --gold-border: rgba(180, 131, 24, 0.32);
+  --gold-border: rgba(180, 131, 24, 0.34);
   --emerald: #059669;
-  --emerald-soft: rgba(5, 150, 105, 0.1);
-  --emerald-border: rgba(5, 150, 105, 0.3);
+  --emerald-soft: rgba(5, 150, 105, 0.11);
+  --emerald-border: rgba(5, 150, 105, 0.32);
   --warn: #d97706;
   --warn-soft: rgba(217, 119, 6, 0.12);
   --bad: #dc2626;
   --bad-soft: rgba(220, 38, 38, 0.1);
   --info: #2563eb;
   --info-soft: rgba(37, 99, 235, 0.1);
-  --line: #e2e8f0;
-  --line-2: #cbd5e1;
+  --line: #dbe3ee;
+  --line-2: #c5d1e0;
   --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
   --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.05);
   --shadow-md: 0 12px 28px rgba(15, 23, 42, 0.08);
@@ -296,7 +296,11 @@ html[data-theme="dark"] .arch-showcase-card {
 }
 
 @media (max-width: 980px) {
+  .auth-card-side { justify-content: flex-start; padding: 20px 14px 36px; }
+  .auth-toolbar { position: static; width: 100%; max-width: 430px; justify-content: space-between; margin-bottom: 14px; }
+  .auth-card { padding: 26px 20px; border-radius: 22px; }
   .auth-card .mobile-brand { display: flex; }
+  .auth-card h2 { font-size: 22px; }
 }
 
 .corp-badge {
@@ -571,11 +575,61 @@ html[data-theme="dark"] .arch-showcase-card {
   flex: 1;
 }
 
+.desk-only { display: block; }
+.mob-only { display: none; }
+.mob-dock { display: none; }
+
+.user-pill { position: relative; }
+.av-sync-dot {
+  position: absolute; bottom: 2px; right: 2px; width: 10px; height: 10px; border-radius: 50%;
+  background: var(--emerald); border: 2px solid var(--surface); display: none;
+}
+.av-sync-dot.local { background: var(--info); }
+.av-sync-dot.busy { background: var(--warn); animation: pulse 1s infinite; }
+.av-sync-dot.err { background: var(--bad); }
+
 @media (max-width: 768px) {
-  .cmd-top { padding: 10px 14px; }
-  .cmd-nav-inner { padding: 0 10px; }
-  .main-wrap { padding: 16px 14px 86px; }
-  .sync-txt-hide { display: none; }
+  .desk-only { display: none !important; }
+  .mob-only { display: block; }
+  .cmd-nav-bar { display: none; }
+  .sync-pill { display: none !important; }
+  .user-meta-hide { display: none; }
+  .cmd-top { padding: 8px 12px; gap: 8px; flex-wrap: nowrap; }
+  .cmd-brand { gap: 8px; min-width: 0; }
+  .cmd-logo { width: 34px; height: 34px; border-radius: 10px; }
+  .cmd-brand b { font-size: 15.5px; white-space: nowrap; }
+  .cmd-brand small { display: none; }
+  .cmd-right { gap: 6px; flex-wrap: nowrap; flex-shrink: 0; }
+  .lang-seg button { padding: 4px 8px; font-size: 11.5px; }
+  .user-pill { padding: 2px; background: transparent; border: 0; }
+  .av { width: 34px; height: 34px; }
+  .av-sync-dot { display: block; bottom: 0; right: 0; }
+  .main-wrap { padding: 12px 12px calc(86px + env(safe-area-inset-bottom)); }
+  .mob-dock {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 48;
+    background: var(--surface-glass); backdrop-filter: blur(18px);
+    border-top: 1px solid var(--line-2); box-shadow: 0 -8px 28px rgba(15, 23, 42, 0.09);
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    padding: 5px 4px max(7px, env(safe-area-inset-bottom)); gap: 2px;
+  }
+  .dock-item {
+    position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px; padding: 6px 2px; border-radius: 12px; font-size: 10.5px; font-weight: 800;
+    color: var(--mut); cursor: pointer; transition: all 0.15s; text-align: center; border: 0; background: transparent;
+  }
+  .dock-item svg.ic-svg { width: 19px; height: 19px; }
+  .dock-item span.dock-lbl { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; line-height: 1.2; }
+  .dock-item.on { color: var(--gold-deep); background: var(--gold-soft); }
+  html[data-theme="dark"] .dock-item.on { color: var(--gold-bright); }
+  .dock-item.gs-dock { color: var(--emerald); }
+  .dock-item.gs-dock.on { background: var(--emerald-soft); color: var(--emerald); }
+  .dock-cnt {
+    position: absolute; top: 2px; left: 50%; margin-left: 6px;
+    font-size: 9.5px; font-weight: 900; padding: 0 5px; border-radius: 99px;
+    background: var(--primary); color: #fff; line-height: 15px; min-width: 16px;
+  }
+  .dock-item.on .dock-cnt { background: var(--gold); }
+  .fld-wrap input, .bar input, .bar select, .f input, .f select, .f textarea { font-size: 16px; }
 }
 
 /* ============================================================================
@@ -684,7 +738,7 @@ html[data-theme="dark"] .role-pill { color: var(--gold-bright); }
   grid-template-columns: 1.35fr 1fr;
   gap: 18px;
 }
-@media (max-width: 960px) { .dash-split { grid-template-columns: 1fr; } }
+@media (max-width: 960px) { .dash-split { grid-template-columns: 1fr; gap: 14px; } }
 
 .panel {
   background: var(--surface);
@@ -698,12 +752,55 @@ html[data-theme="dark"] .role-pill { color: var(--gold-bright); }
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 10px;
-  padding-bottom: 14px;
-  margin-bottom: 16px;
+  background: var(--surface-2);
+  padding: 14px 20px;
+  margin: -20px -20px 16px;
+  border-radius: 18px 18px 0 0;
   border-bottom: 1px solid var(--line);
 }
-.panel-hdr h2 { font-size: 17px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+.panel-hdr h2 { font-size: 16.5px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+
+.mob-list { display: flex; flex-direction: column; gap: 10px; }
+.mob-list-item {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-right: 4px solid var(--gold);
+  border-radius: 13px;
+  padding: 12px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.mob-list-item:hover { border-color: var(--gold); }
+.mob-list-item.avail { border-right-color: var(--emerald); }
+.mob-list-item.sold { border-right-color: var(--bad); }
+.mob-list-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.mob-list-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 6px; border-top: 1px dashed var(--line); font-size: 12.5px; }
+
+@media (max-width: 768px) {
+  .page-hero { padding: 15px 14px; border-radius: 16px; gap: 12px; margin-bottom: 14px; }
+  .page-hero h1 { font-size: 17.5px; }
+  .page-hero p { font-size: 12.5px; }
+  .page-hero-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+  .page-hero-actions .btn { padding: 10px 8px; font-size: 12.5px; justify-content: center; width: 100%; white-space: normal; text-align: center; line-height: 1.3; }
+  .page-hero-actions .btn:only-child { grid-column: 1 / -1; }
+  .panel { padding: 14px; border-radius: 16px; margin-bottom: 14px; }
+  .panel-hdr { margin: -14px -14px 12px; padding: 12px 14px; border-radius: 16px 16px 0 0; }
+  .panel-hdr h2 { font-size: 15px; }
+}
+
+@media (max-width: 640px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 14px; }
+  .kpi-card { padding: 12px 11px; border-radius: 14px; gap: 6px; flex-direction: column-reverse; }
+  .kpi-card h3 { font-size: 18px; margin: 2px 0; }
+  .kpi-card small { font-size: 11px; line-height: 1.3; }
+  .kpi-card .kpi-sub { font-size: 10.5px; }
+  .kpi-ic { width: 34px; height: 34px; border-radius: 10px; }
+}
 
 /* ============================================================================
  * 5. FILTERS, CHIPS, PROPERTY GRID & TABLE
@@ -770,6 +867,25 @@ html[data-theme="dark"] .stat-pill-card.on b { color: var(--gold-bright); }
   border-top: 1px dashed var(--line);
 }
 
+.filter-toggle-btn { display: none !important; }
+
+@media (max-width: 768px) {
+  .stats-ribbon {
+    display: flex; overflow-x: auto; gap: 8px; padding-bottom: 6px; margin-bottom: 12px;
+    scroll-snap-type: x proximity;
+  }
+  .stat-pill-card { flex: 0 0 auto; min-width: 118px; padding: 10px 12px; border-radius: 12px; gap: 8px; }
+  .stat-pill-card b { font-size: 18px; }
+  .stat-pill-card span { font-size: 11.5px; white-space: nowrap; }
+  .filter-panel { padding: 12px; border-radius: 15px; margin-bottom: 12px; }
+  .search-box { min-width: 100%; flex: 1 1 100%; }
+  .bar select { flex: 1 1 calc(50% - 5px); min-width: 0; font-size: 13px; padding: 8px 10px; }
+  .filter-toggle-btn { display: inline-flex !important; }
+  .adv-filters { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .adv-filters.mob-hidden { display: none; }
+  .grid { grid-template-columns: 1fr; gap: 14px; }
+}
+
 .chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 10px; }
 .chip {
   white-space: nowrap;
@@ -792,6 +908,7 @@ html[data-theme="dark"] .chip.on { color: #080c14; }
 .pc {
   background: var(--surface);
   border: 1px solid var(--line);
+  border-top: 3.5px solid var(--gold);
   border-radius: 18px;
   overflow: hidden;
   cursor: pointer;
@@ -800,8 +917,11 @@ html[data-theme="dark"] .chip.on { color: #080c14; }
   display: flex;
   flex-direction: column;
 }
+.pc.cat-rent { border-top-color: var(--info); }
+.pc.cat-invest { border-top-color: var(--emerald); }
+.pc.cat-contract { border-top-color: var(--ink-2); }
 .pc:hover { transform: translateY(-3px); border-color: var(--gold); box-shadow: var(--shadow-md); }
-.pc.featured { border: 1.5px solid var(--gold); }
+.pc.featured { border: 1.5px solid var(--gold); border-top-width: 4px; }
 
 .im {
   height: 196px;
@@ -869,7 +989,17 @@ html[data-theme="dark"] .im-watermark { color: rgba(212, 175, 55, 0.3); }
 .spec-item { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--ink-2); background: var(--surface-2); padding: 3px 9px; border-radius: 7px; border: 1px solid var(--line); }
 .spec-item svg { width: 14px; height: 14px; color: var(--gold); }
 
-.pb-foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pb-foot {
+  margin-top: auto;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+  background: var(--surface-2); padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line);
+}
+@media (max-width: 640px) {
+  .im { height: 172px; }
+  .pb { padding: 14px; }
+  .pb h3 { font-size: 15px; }
+  .pr { font-size: 17.5px; }
+}
 .pr { color: var(--gold-deep); font-weight: 900; font-size: 19px; line-height: 1.1; }
 html[data-theme="dark"] .pr { color: var(--gold-bright); }
 .pr-sub { font-size: 11px; color: var(--mut); font-weight: 600; display: block; margin-top: 2px; }
@@ -958,6 +1088,33 @@ table.pro-tbl tr.clickable:hover td { background: var(--surface-2); cursor: poin
 .ac-metrics b { display: block; font-size: 16px; font-weight: 900; }
 .ac-metrics small { font-size: 11px; color: var(--mut); font-weight: 700; }
 .perm-badges { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+.mob-matrix-list { display: flex; flex-direction: column; gap: 12px; }
+.mob-matrix-card {
+  background: var(--surface-2); border: 1px solid var(--line-2); border-radius: 16px;
+  padding: 14px; display: flex; flex-direction: column; gap: 12px;
+}
+.mob-matrix-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--line);
+}
+.mob-perm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mob-perm-item {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 11px;
+  padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  font-size: 11.5px; font-weight: 700; color: var(--ink-2);
+}
+.mob-perm-item.on { border-color: var(--emerald-border); background: var(--emerald-soft); color: var(--emerald); }
+
+.db-actions-grid { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+@media (max-width: 640px) {
+  .mob-perm-grid { grid-template-columns: 1fr; }
+  .gs-hero { padding: 18px 15px; border-radius: 16px; }
+  .gs-hero h2 { font-size: 17.5px; }
+  .db-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .db-actions-grid .btn { width: 100%; padding: 10px 8px; font-size: 12px; white-space: normal; text-align: center; line-height: 1.3; }
+  .agent-card { padding: 15px; border-radius: 16px; }
+}
+
 .perm-badge {
   font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px;
   background: var(--surface-2); color: var(--ink-2); border: 1px solid var(--line-2);
@@ -1012,14 +1169,18 @@ table.pro-tbl tr.clickable:hover td { background: var(--surface-2); cursor: poin
 }
 .md {
   background: var(--surface); width: 100%; max-width: 720px;
-  border-radius: 24px 24px 0 0; padding: 24px; max-height: 92vh; overflow-y: auto;
+  border-radius: 24px 24px 0 0; padding: 18px 18px 28px; max-height: 92dvh; overflow-y: auto;
   border: 1px solid var(--line-2); box-shadow: var(--shadow-lg);
 }
 .md.wide { max-width: 960px; }
-@media (min-width: 720px) { .ov { align-items: center; padding: 24px; } .md { border-radius: 22px; margin: auto; } }
+@media (min-width: 720px) { .ov { align-items: center; padding: 24px; } .md { border-radius: 22px; margin: auto; padding: 24px; } }
 
-.md-hdr { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-bottom: 14px; margin-bottom: 18px; border-bottom: 1px solid var(--line); }
-.md-hdr h2 { font-size: 19px; font-weight: 900; }
+.md-hdr {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding-bottom: 12px; margin-bottom: 16px; border-bottom: 1px solid var(--line);
+  position: sticky; top: -18px; background: var(--surface); z-index: 6; padding-top: 4px;
+}
+.md-hdr h2 { font-size: 18px; font-weight: 900; }
 
 .f { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
 @media (max-width: 560px) { .f { grid-template-columns: 1fr; } }
@@ -1148,7 +1309,8 @@ const SVG = {
   star: '<svg class="ic-svg" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
   check: '<svg class="ic-svg" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',
   close: '<svg class="ic-svg" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
-  key: '<svg class="ic-svg" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>'
+  key: '<svg class="ic-svg" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>',
+  filter: '<svg class="ic-svg" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>'
 };
 
 const ARCH_ART = `
@@ -1198,6 +1360,13 @@ const T = {
     navAgents: 'مەندووب و دەسەڵات',
     navStats: 'ئامار و ڕاپۆرت',
     navDb: 'ڕێکخستنی Google Sheet',
+    mobHome: 'سەرەکی',
+    mobProps: 'عەقار',
+    mobReqs: 'داواکاری',
+    mobAgents: 'مەندووب',
+    mobStats: 'ئامار',
+    mobSheet: 'Google Sheet',
+    advFilterBtn: 'فلتەری ورد',
     syncCloud: 'بەستراوە بە Google Sheet',
     syncLocal: 'دۆخی ناوخۆیی خێرا',
     syncBusy: 'هاوکاتکردن...',
@@ -1306,6 +1475,13 @@ const T = {
     navAgents: 'المندوبون والصلاحيات',
     navStats: 'التقارير والإحصائيات',
     navDb: 'إعدادات Google Sheet',
+    mobHome: 'الرئيسية',
+    mobProps: 'العقارات',
+    mobReqs: 'الطلبات',
+    mobAgents: 'المندوبين',
+    mobStats: 'الإحصاءات',
+    mobSheet: 'Google Sheet',
+    advFilterBtn: 'تصفية متقدمة',
     syncCloud: 'متصل مع Google Sheet',
     syncLocal: 'الذاكرة المحلية النشطة',
     syncBusy: 'جارٍ المزامنة...',
@@ -1510,6 +1686,7 @@ let S = {
   logs: [],
   view: 'overview', // overview | props | reqs | agents | stats | db
   agentSubTab: 'all', // all | cards | matrix
+  showFilters: false,
   layout: 'grid',
   cat: 'all',
   type: 'all',
@@ -1941,8 +2118,10 @@ async function api(action, d = {}) {
 
 function updateSyncUI() {
   const el = $('#sync-ui');
-  if (!el) return;
+  const dot = $('#av-sync-dot');
   const cls = S.syncState === 'busy' ? 'busy' : (S.syncState === 'err' ? 'err' : (S.cloudVerified && !isLocalToken() ? '' : 'local'));
+  if (dot) dot.className = `av-sync-dot ${cls}`;
+  if (!el) return;
   const txt = S.syncState === 'busy'
     ? L('syncBusy')
     : (S.syncState === 'err' ? L('syncErr') : (S.cloudVerified && !isLocalToken() ? `${L('syncCloud')} (${S.latency}ms)` : L('syncLocal')));
@@ -2149,18 +2328,19 @@ function drawAppShell() {
             <span class="sync-txt-hide">${isLocalToken() ? L('syncLocal') : L('syncCloud')}</span>
           </div>
 
-          <button class="btn l sm" onclick="load(true)" title="${L('refresh')}">${SVG.sync}</button>
+          <button class="btn l sm desk-only" onclick="load(true)" title="${L('refresh')}">${SVG.sync}</button>
 
           <div class="lang-seg">
             <button class="${S.lang === 'ku' ? 'on' : ''}" onclick="setLang('ku')">کوردی</button>
             <button class="${S.lang === 'ar' ? 'on' : ''}" onclick="setLang('ar')">عربي</button>
           </div>
 
-          <button class="btn l sm" onclick="toggleTheme()">${S.theme === 'dark' ? SVG.sun : SVG.moon}</button>
+          <button class="btn l sm" onclick="toggleTheme()" title="Theme">${S.theme === 'dark' ? SVG.sun : SVG.moon}</button>
 
           <div class="user-pill" onclick="openAccountMenu()">
             ${S.me.photo ? `<img class="av" src="${esc(S.me.photo)}">` : `<div class="av">${esc((S.me.name || 'Y')[0])}</div>`}
-            <div style="text-align:right;line-height:1.2">
+            <span class="av-sync-dot ${isLocalToken() ? 'local' : ''}" id="av-sync-dot"></span>
+            <div class="user-meta-hide" style="text-align:right;line-height:1.2">
               <b style="font-size:12.5px;display:block;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(S.me.name)}</b>
               <small style="font-size:11px;color:var(--gold);font-weight:700">${isAd ? L('adminRole') : L('agentRole')}</small>
             </div>
@@ -2194,6 +2374,30 @@ function drawAppShell() {
     </header>
 
     <main class="main-wrap" id="ws-body"></main>
+
+    <nav class="mob-dock" aria-label="Mobile Navigation">
+      <button class="dock-item ${S.view === 'overview' ? 'on' : ''}" onclick="setView('overview')">
+        ${SVG.home}<span class="dock-lbl">${L('mobHome')}</span>
+      </button>
+      <button class="dock-item ${S.view === 'props' ? 'on' : ''}" onclick="setView('props')">
+        ${S.props.length ? `<span class="dock-cnt">${S.props.length}</span>` : ''}
+        ${SVG.building}<span class="dock-lbl">${L('mobProps')}</span>
+      </button>
+      <button class="dock-item ${S.view === 'reqs' ? 'on' : ''}" onclick="setView('reqs')">
+        ${S.reqs.length ? `<span class="dock-cnt">${S.reqs.length}</span>` : ''}
+        ${SVG.briefcase}<span class="dock-lbl">${L('mobReqs')}</span>
+      </button>
+      <button class="dock-item ${S.view === 'agents' ? 'on' : ''}" onclick="setView('agents')">
+        ${SVG.users}<span class="dock-lbl">${L('mobAgents')}</span>
+      </button>
+      ${isAd ? `
+      <button class="dock-item gs-dock ${S.view === 'db' ? 'on' : ''}" onclick="setView('db')">
+        ${SVG.sheet}<span class="dock-lbl">${L('mobSheet')}</span>
+      </button>` : `
+      <button class="dock-item ${S.view === 'stats' ? 'on' : ''}" onclick="setView('stats')">
+        ${SVG.chart}<span class="dock-lbl">${L('mobStats')}</span>
+      </button>`}
+    </nav>
   </div>`;
 
   if (S.view === 'overview') renderOverview();
@@ -2218,8 +2422,16 @@ function openAccountMenu() {
       <small style="color:var(--mut)">${esc(S.me.phone)} · <span class="role-pill ${isAd ? 'admin' : ''}">${isAd ? L('adminRole') : L('agentRole')}</span></small>
     </div>
   </div>
-  <div style="display:grid;gap:10px;margin-top:16px">
+  <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px 13px;margin-top:10px;font-size:12.5px;font-weight:700">
+    <span style="display:flex;align-items:center;gap:7px">
+      <span class="sync-dot ${S.cloudVerified && !isLocalToken() ? '' : 'local'}"></span>
+      <span>${S.cloudVerified && !isLocalToken() ? L('syncCloud') : L('syncLocal')}</span>
+    </span>
+    <button class="btn l sm" onclick="closeM();load(true)">${SVG.sync}<span>${L('refresh')}</span></button>
+  </div>
+  <div style="display:grid;gap:10px;margin-top:14px">
     <button class="btn" onclick="myAcc()">${SVG.settings}<span>${L('myAcc')}</span></button>
+    <button class="btn l" onclick="closeM();setView('stats')">${SVG.chart}<span>${L('navStats')}</span></button>
     ${isAd ? `<button class="btn ok" onclick="closeM();setView('agents')">${SVG.users}<span>${L('navAgents')}</span></button>` : ''}
     ${isAd ? `<button class="btn ok-soft" onclick="closeM();setView('db')">${SVG.sheet}<span>${L('navDb')}</span></button>` : ''}
     <button class="btn r" onclick="closeM();logout()">${SVG.logout}<span>${L('logout')}</span></button>
@@ -2252,7 +2464,7 @@ function renderOverview() {
   </div>
 
   <div class="kpi-grid">
-    <div class="kpi-card">
+    <div class="kpi-card" style="cursor:pointer" onclick="setView('stats')">
       <div>
         <small>${L('totalValSale')}</small>
         <h3 style="color:var(--gold)">$${Math.round(saleUsd).toLocaleString('en')}</h3>
@@ -2293,7 +2505,7 @@ function renderOverview() {
         <button class="btn l sm" onclick="setView('props')">${L('allProps')} (${S.props.length})</button>
       </div>
       ${S.props.length ? `
-      <div class="tbl-wrap" style="border:0;box-shadow:none">
+      <div class="tbl-wrap desk-only" style="border:0;box-shadow:none">
         <table class="pro-tbl">
           <thead><tr><th>#</th><th>${S.lang === 'ku' ? 'ناونیشان' : 'العقار'}</th><th>${S.lang === 'ku' ? 'ناوچە' : 'المنطقة'}</th><th>${S.lang === 'ku' ? 'نرخ' : 'السعر'}</th><th>${S.lang === 'ku' ? 'دۆخ' : 'الحالة'}</th></tr></thead>
           <tbody>
@@ -2307,6 +2519,20 @@ function renderOverview() {
             </tr>`).join('')}
           </tbody>
         </table>
+      </div>
+      <div class="mob-list mob-only">
+        ${S.props.slice(0, 6).map(p => `
+        <div class="mob-list-item ${p.status === 'متاح' ? 'avail' : (p.status === 'مؤجّر / مباع' ? 'sold' : '')}" onclick="detail('${p.id}')">
+          <div class="mob-list-top">
+            <span class="ref-code">${esc(refOf(p))}</span>
+            <span class="role-pill ${p.status === 'متاح' ? 'ok' : ''}">${esc(STAT_L(p.status))}</span>
+          </div>
+          <b style="font-size:14px;line-height:1.4">${esc(p.title)}</b>
+          <div class="mob-list-foot">
+            <span style="color:var(--mut);font-weight:700">${esc(p.area)} · ${tn(p)}</span>
+            <b style="color:var(--gold-deep);font-size:14px">${money(p)}</b>
+          </div>
+        </div>`).join('')}
       </div>` : `<div class="empty">${L('noProps')}</div>`}
     </div>
 
@@ -2315,19 +2541,23 @@ function renderOverview() {
         <h2>${SVG.briefcase}<span>${L('navReqs')}</span></h2>
         <button class="btn l sm" onclick="setView('reqs')">${S.reqs.length}</button>
       </div>
+      <div class="mob-list">
       ${S.reqs.slice(0, 5).map(r => {
         const m = matches(r);
         return `
-        <div class="ag" style="cursor:pointer;margin-top:0" onclick="reqDetail('${r.id}')">
-          <div>
-            <b>${esc(r.name)}</b> <span class="role-pill" style="margin-right:4px">${esc(RST_L(r.status))}</span><br>
-            <small style="color:var(--mut)">${CAT_L(r.category)} · ${r.type ? TYPE_L(r.type) : '—'} · ${esc(r.area || '—')}</small>
+        <div class="mob-list-item" style="border-right-color:var(--info)" onclick="reqDetail('${r.id}')">
+          <div class="mob-list-top">
+            <b style="font-size:14px">${esc(r.name)}</b>
+            <span class="role-pill">${esc(RST_L(r.status))}</span>
           </div>
-          <div style="text-align:left;flex:0 0 auto">
-            <b style="color:var(--emerald);font-size:12.5px">${m.length} ${S.lang === 'ku' ? 'گونجاو' : 'مطابق'}</b>
+          <small style="color:var(--mut);font-weight:600">${CAT_L(r.category)} · ${r.type ? TYPE_L(r.type) : '—'} · ${esc(r.area || '—')}</small>
+          <div class="mob-list-foot">
+            <span style="color:var(--ink-2);font-weight:700">${bud(r)}</span>
+            <b style="color:var(--emerald);font-size:12px">${m.length} ${S.lang === 'ku' ? 'گونجاو' : 'مطابق'}</b>
           </div>
         </div>`;
       }).join('') || `<div class="empty">${L('noProps')}</div>`}
+      </div>
     </div>
   </div>`;
 }
@@ -2365,6 +2595,7 @@ function renderPropsView() {
   const cnt = c => S.props.filter(p => c === 'all' || p.category === c).length;
   const types = S.cat === 'all' ? [] : TYPES[S.cat];
   const agentNames = [...new Set(S.props.map(p => p.agentName).filter(Boolean))];
+  const activeFilterCnt = [S.area !== 'all', S.status !== 'all', S.agent !== 'all', S.minP !== '', S.maxP !== '', S.onlyFeat, S.sort !== 'newest'].filter(Boolean).length;
 
   $('#ws-body').innerHTML = `
   <div class="page-hero">
@@ -2396,6 +2627,16 @@ function renderPropsView() {
         <span class="s-ic">${SVG.search}</span>
         <input id="q" placeholder="${L('searchPh')}" value="${esc(S.q)}" oninput="S.q=this.value;drawList()">
       </div>
+      <button class="btn ${S.showFilters || activeFilterCnt ? 'gold' : 'l'} sm filter-toggle-btn" onclick="S.showFilters=!S.showFilters;renderPropsView()">
+        ${SVG.filter}<span>${L('advFilterBtn')}${activeFilterCnt ? ` (${activeFilterCnt})` : ''}</span>
+      </button>
+      <div style="display:flex;gap:5px;margin-right:auto">
+        <button class="btn ${S.layout === 'grid' ? '' : 'l'} sm" onclick="S.layout='grid';drawList()" title="Grid">${SVG.grid}</button>
+        <button class="btn ${S.layout === 'table' ? '' : 'l'} sm" onclick="S.layout='table';drawList()" title="List">${SVG.list}</button>
+      </div>
+    </div>
+
+    <div class="adv-filters ${S.showFilters ? '' : 'mob-hidden'}">
       <select onchange="S.area=this.value;drawList()">
         <option value="all">${L('allAreas')}</option>
         ${S.areas.map(a => `<option value="${esc(a)}" ${S.area === a ? 'selected' : ''}>${esc(a)}</option>`).join('')}
@@ -2410,19 +2651,12 @@ function renderPropsView() {
         <option value="price_desc" ${S.sort === 'price_desc' ? 'selected' : ''}>${L('sortPriceDesc')}</option>
         <option value="area_desc" ${S.sort === 'area_desc' ? 'selected' : ''}>${L('sortAreaDesc')}</option>
       </select>
-      <div style="display:flex;gap:5px">
-        <button class="btn ${S.layout === 'grid' ? '' : 'l'} sm" onclick="S.layout='grid';drawList()">${SVG.grid}</button>
-        <button class="btn ${S.layout === 'table' ? '' : 'l'} sm" onclick="S.layout='table';drawList()">${SVG.list}</button>
-      </div>
-    </div>
-
-    <div class="adv-filters">
-      <input type="number" placeholder="${L('minPrice')}" value="${esc(S.minP)}" oninput="S.minP=this.value;drawList()">
-      <input type="number" placeholder="${L('maxPrice')}" value="${esc(S.maxP)}" oninput="S.maxP=this.value;drawList()">
       <select onchange="S.agent=this.value;drawList()">
         <option value="all">${L('allAgents')}</option>
         ${agentNames.map(a => `<option value="${esc(a)}" ${S.agent === a ? 'selected' : ''}>${esc(a)}</option>`).join('')}
       </select>
+      <input type="number" placeholder="${L('minPrice')}" value="${esc(S.minP)}" oninput="S.minP=this.value;drawList()">
+      <input type="number" placeholder="${L('maxPrice')}" value="${esc(S.maxP)}" oninput="S.maxP=this.value;drawList()">
       <button class="btn ${S.onlyFeat ? 'gold' : 'l'} sm" onclick="S.onlyFeat=!S.onlyFeat;renderPropsView()">${SVG.star}<span>${L('vipOnly')}</span></button>
       <button class="btn l sm" onclick="resetFilters()">${L('resetFilters')}</button>
     </div>
@@ -2457,24 +2691,41 @@ function drawList() {
   if (!list.length) { gl.className = ''; gl.innerHTML = `<div class="empty">${SVG.building}<br><b>${L('noProps')}</b></div>`; return; }
 
   if (S.layout === 'table') {
-    gl.className = 'tbl-wrap';
+    gl.className = '';
     gl.innerHTML = `
-    <table class="pro-tbl">
-      <thead><tr><th>#</th><th>${S.lang === 'ku' ? 'ناونیشان' : 'العنوان'}</th><th>${S.lang === 'ku' ? 'جۆر' : 'التصنيف'}</th><th>${S.lang === 'ku' ? 'ناوچە' : 'المنطقة'}</th><th>${S.lang === 'ku' ? 'ڕووبەر' : 'المساحة'}</th><th>${S.lang === 'ku' ? 'نرخ' : 'السعر'}</th><th>${S.lang === 'ku' ? 'دۆخ' : 'الحالة'}</th><th>${S.lang === 'ku' ? 'مەندووب' : 'المندوب'}</th></tr></thead>
-      <tbody>
-        ${list.map(p => `
-        <tr class="clickable" onclick="detail('${p.id}')">
-          <td><span class="ref-code">${esc(refOf(p))}</span></td>
-          <td><b>${esc(p.title)}</b></td>
-          <td>${CAT_L(p.category)} · ${tn(p)}</td>
-          <td>${esc(p.area)}</td>
-          <td>${p.data?.m2 ? `${esc(p.data.m2)} م²` : (p.data?.dunum ? `${esc(p.data.dunum)} دونم` : '—')}</td>
-          <td><b style="color:var(--gold-deep)">${money(p)}</b></td>
-          <td><span class="tag s ${statusClass(p.status)}" style="position:static">${esc(STAT_L(p.status))}</span></td>
-          <td>${esc(p.agentName)}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table>`;
+    <div class="tbl-wrap desk-only">
+      <table class="pro-tbl">
+        <thead><tr><th>#</th><th>${S.lang === 'ku' ? 'ناونیشان' : 'العنوان'}</th><th>${S.lang === 'ku' ? 'جۆر' : 'التصنيف'}</th><th>${S.lang === 'ku' ? 'ناوچە' : 'المنطقة'}</th><th>${S.lang === 'ku' ? 'ڕووبەر' : 'المساحة'}</th><th>${S.lang === 'ku' ? 'نرخ' : 'السعر'}</th><th>${S.lang === 'ku' ? 'دۆخ' : 'الحالة'}</th><th>${S.lang === 'ku' ? 'مەندووب' : 'المندوب'}</th></tr></thead>
+        <tbody>
+          ${list.map(p => `
+          <tr class="clickable" onclick="detail('${p.id}')">
+            <td><span class="ref-code">${esc(refOf(p))}</span></td>
+            <td><b>${esc(p.title)}</b></td>
+            <td>${CAT_L(p.category)} · ${tn(p)}</td>
+            <td>${esc(p.area)}</td>
+            <td>${p.data?.m2 ? `${esc(p.data.m2)} م²` : (p.data?.dunum ? `${esc(p.data.dunum)} دونم` : '—')}</td>
+            <td><b style="color:var(--gold-deep)">${money(p)}</b></td>
+            <td><span class="tag s ${statusClass(p.status)}" style="position:static">${esc(STAT_L(p.status))}</span></td>
+            <td>${esc(p.agentName)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="mob-list mob-only">
+      ${list.map(p => `
+      <div class="mob-list-item ${p.status === 'متاح' ? 'avail' : (p.status === 'مؤجّر / مباع' ? 'sold' : '')}" onclick="detail('${p.id}')">
+        <div class="mob-list-top">
+          <span class="ref-code">${esc(refOf(p))}</span>
+          <span class="tag s ${statusClass(p.status)}" style="position:static">${esc(STAT_L(p.status))}</span>
+        </div>
+        <b style="font-size:14.5px;line-height:1.4">${esc(p.title)}</b>
+        <small style="color:var(--mut);font-weight:700">${CAT_L(p.category)} · ${tn(p)} · ${esc(p.area)}${p.data?.m2 ? ` · ${esc(p.data.m2)} م²` : ''}</small>
+        <div class="mob-list-foot">
+          <b style="color:var(--gold-deep);font-size:15px">${money(p)}</b>
+          <span style="color:var(--mut);font-weight:700">${esc(p.agentName)}</span>
+        </div>
+      </div>`).join('')}
+    </div>`;
     return;
   }
 
@@ -2482,7 +2733,7 @@ function drawList() {
   gl.innerHTML = list.map(p => {
     const d = p.data || {}, ppm = pricePerM2(p);
     return `
-    <div class="pc ${d.featured ? 'featured' : ''}" onclick="detail('${p.id}')">
+    <div class="pc cat-${esc(p.category)} ${d.featured ? 'featured' : ''}" onclick="detail('${p.id}')">
       <div class="im" style="${p.images && p.images[0] ? `background-image:url('${esc(p.images[0])}')` : `background:${GR[p.category] || GR.sale}`}">
         ${p.images && p.images[0] ? '' : `<div class="im-watermark">${SVG.building}<span style="font-size:11px;font-weight:800;margin-top:6px;letter-spacing:1px">YAD ROYAL</span></div>`}
         <span class="tag">${CAT_L(p.category)} · ${tn(p)}</span>
@@ -2610,7 +2861,7 @@ function renderAgentsView() {
       </div>
       <button class="btn gold sm" onclick="agentForm()">${SVG.userPlus}<span>${L('addAgent')}</span></button>
     </div>
-    <div class="tbl-wrap" style="border:0">
+    <div class="tbl-wrap desk-only" style="border:0;box-shadow:none">
       <table class="pro-tbl">
         <thead>
           <tr>
@@ -2650,6 +2901,40 @@ function renderAgentsView() {
         </tbody>
       </table>
     </div>
+    <div class="mob-matrix-list mob-only">
+      ${team.map(u => {
+        const isSuper = u.role === 'admin';
+        return `
+        <div class="mob-matrix-card">
+          <div class="mob-matrix-head">
+            <div>
+              <b style="font-size:15px;display:block">${esc(u.name)}</b>
+              <small style="color:var(--mut);font-weight:700">${esc(u.phone)} · ${isSuper ? L('adminRole') : L('agentRole')}</small>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <label class="switch" title="${L('activeLbl')}">
+                <input type="checkbox" ${u.active !== 'no' ? 'checked' : ''} ${u.id === S.me.id ? 'disabled' : ''} onchange="quickToggleActive('${u.id}', this.checked)">
+                <span class="slider"></span>
+              </label>
+              ${!isSuper ? `<button class="btn l sm" onclick="agentForm('${u.id}')">${SVG.edit}</button>` : ''}
+            </div>
+          </div>
+          <div class="mob-perm-grid">
+            ${PERM_KEYS.map(k => {
+              const checked = isSuper || (u.perms && u.perms[k]);
+              return `
+              <div class="mob-perm-item ${checked ? 'on' : ''}">
+                <span>${PERM_L(k)}</span>
+                <label class="switch">
+                  <input type="checkbox" ${checked ? 'checked' : ''} ${isSuper ? 'disabled' : ''} onchange="quickTogglePerm('${u.id}', '${k}', this.checked)">
+                  <span class="slider"></span>
+                </label>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
   </div>` : ''}`;
 }
 
@@ -2662,6 +2947,7 @@ async function quickTogglePerm(uid, key, val) {
     u.perms = perms;
     saveCache();
     toast(`${PERM_L(key)}: ${val ? '✓' : '✕'}`);
+    if (S.view === 'agents') renderAgentsView();
   } catch (e) {
     toast(e.message, 'bad');
     renderAgentsView();
@@ -2703,12 +2989,20 @@ function agentPortfolioModal(uid, uname) {
   </div>
   <h3 style="font-size:15.5px;margin:14px 0 8px">${L('navProps')} (${uProps.length})</h3>
   ${uProps.length ? `
-  <div class="tbl-wrap" style="max-height:280px">
+  <div class="tbl-wrap desk-only" style="max-height:280px">
     <table class="pro-tbl">
       <tbody>
         ${uProps.map(p => `<tr class="clickable" onclick="detail('${p.id}')"><td><span class="ref-code">${esc(refOf(p))}</span></td><td><b>${esc(p.title)}</b></td><td>${esc(p.area)}</td><td><b style="color:var(--gold-deep)">${money(p)}</b></td><td>${esc(STAT_L(p.status))}</td></tr>`).join('')}
       </tbody>
     </table>
+  </div>
+  <div class="mob-list mob-only">
+    ${uProps.map(p => `
+    <div class="mob-list-item ${p.status === 'متاح' ? 'avail' : ''}" onclick="detail('${p.id}')">
+      <div class="mob-list-top"><span class="ref-code">${esc(refOf(p))}</span><span class="role-pill">${esc(STAT_L(p.status))}</span></div>
+      <b>${esc(p.title)}</b>
+      <div class="mob-list-foot"><span style="color:var(--mut)">${esc(p.area)}</span><b style="color:var(--gold-deep)">${money(p)}</b></div>
+    </div>`).join('')}
   </div>` : `<div class="empty" style="padding:18px">${L('noProps')}</div>`}
   <h3 style="font-size:15.5px;margin:14px 0 8px">${L('navReqs')} (${uReqs.length})</h3>
   ${uReqs.map(r => `<div class="ag" style="cursor:pointer" onclick="reqDetail('${r.id}')"><div><b>${esc(r.name)}</b> · <small>${CAT_L(r.category)}</small></div><span class="role-pill">${esc(RST_L(r.status))}</span></div>`).join('') || `<p style="color:var(--mut);font-size:13px">—</p>`}`, true);
@@ -2753,7 +3047,7 @@ function renderDbView() {
       </div>
     </div>
 
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
+    <div class="db-actions-grid">
       <button class="btn ok" onclick="pingDb()">${SVG.sync}<span>${L('testPingBtn')}</span></button>
       <button class="btn" onclick="initRemoteDb()">${SVG.settings}<span>${L('initDbBtn')}</span></button>
       <button class="btn gold" onclick="syncUpToSheet()">${SVG.upload}<span>${L('pushCloudBtn')}</span></button>
@@ -2767,8 +3061,8 @@ function renderDbView() {
       <div class="panel-hdr">
         <h2>${SVG.pin}<span>${L('areasTitle')} (${S.areas.length})</span></h2>
       </div>
-      <div style="display:flex;gap:8px;margin-bottom:14px">
-        <input id="new_area_inp" style="flex:1;background:var(--surface-2);border:1.5px solid var(--line-2);border-radius:10px;padding:9px 12px" placeholder="${L('addAreaPh')}" onkeydown="if(event.key==='Enter')addAreaInline()">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        <input id="new_area_inp" style="flex:1;min-width:170px;background:var(--surface-2);border:1.5px solid var(--line-2);border-radius:10px;padding:9px 12px" placeholder="${L('addAreaPh')}" onkeydown="if(event.key==='Enter')addAreaInline()">
         <button class="btn" onclick="addAreaInline()">${SVG.plus}<span>${L('addAreaBtn')}</span></button>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:8px">
@@ -2824,13 +3118,20 @@ function renderDbView() {
     <div class="panel-hdr">
       <h2>${SVG.shield}<span>${L('logsTitle')}</span></h2>
     </div>
-    <div class="tbl-wrap" style="max-height:280px">
+    <div class="tbl-wrap desk-only" style="max-height:280px">
       <table class="pro-tbl">
         <thead><tr><th>${S.lang === 'ku' ? 'کات' : 'الوقت'}</th><th>${S.lang === 'ku' ? 'بەکارهێنەر' : 'المستخدم'}</th><th>${S.lang === 'ku' ? 'کردار' : 'الإجراء'}</th><th>${S.lang === 'ku' ? 'وردەکاری' : 'التفاصيل'}</th></tr></thead>
         <tbody>
           ${S.logs.slice(0, 20).map(lg => `<tr><td><small>${esc(String(lg.time || '').replace('T', ' ').slice(0, 16))}</small></td><td><b>${esc(lg.userName)}</b></td><td><span class="role-pill">${esc(lg.action)}</span></td><td>${esc(lg.details || lg.targetId)}</td></tr>`).join('')}
         </tbody>
       </table>
+    </div>
+    <div class="mob-list mob-only">
+      ${S.logs.slice(0, 12).map(lg => `
+      <div class="mob-list-item" style="border-right-color:var(--primary);cursor:default">
+        <div class="mob-list-top"><b>${esc(lg.userName)}</b><span class="role-pill">${esc(lg.action)}</span></div>
+        <small style="color:var(--mut)">${esc(lg.details || lg.targetId || '—')} · ${esc(String(lg.time || '').replace('T', ' ').slice(0, 16))}</small>
+      </div>`).join('')}
     </div>
   </div>` : ''}`;
 }
@@ -3195,14 +3496,15 @@ function renderReqsView() {
   <div class="grid">
     ${list.map(r => {
       const m = matches(r);
-      return `<div class="pc" onclick="reqDetail('${r.id}')"><div class="pb">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><h3 style="margin:0">${esc(r.name)}</h3><span class="role-pill">${esc(RST_L(r.status))}</span></div>
-        <p style="font-size:13px;color:var(--mut);margin-bottom:8px">${CAT_L(r.category)} · ${r.type ? TYPE_L(r.type) : '—'} · ${esc(r.area || '—')}</p>
+      return `<div class="pc cat-${esc(r.category)}" onclick="reqDetail('${r.id}')"><div class="pb">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px"><h3 style="margin:0">${esc(r.name)}</h3><span class="role-pill">${esc(RST_L(r.status))}</span></div>
+        <p style="font-size:13px;color:var(--mut);margin-bottom:8px;font-weight:700">${CAT_L(r.category)} · ${r.type ? TYPE_L(r.type) : '—'} · ${esc(r.area || '—')}</p>
         <div class="pr" style="margin-bottom:10px">${bud(r)}</div>
-        ${r.notes ? `<p style="font-size:12.5px;color:var(--ink-2);margin-bottom:10px">${esc(r.notes)}</p>` : ''}
-        <div class="pb-foot" style="padding-top:10px;border-top:1px solid var(--line)"><span style="font-size:12px;color:var(--mut)">${esc(r.phone)}</span><span style="font-size:12px;font-weight:700">${esc(r.agentName)}</span></div>
-        <div style="margin-top:10px;padding:7px 11px;border-radius:10px;font-size:12.5px;font-weight:700;background:${m.length ? 'var(--emerald-soft)' : 'var(--surface-2)'};color:${m.length ? 'var(--emerald)' : 'var(--mut)'}">
-          ${m.length} ${S.lang === 'ku' ? 'عەقاری گونجاو بەردەستە' : 'عقار مطابق متاح'}
+        ${r.notes ? `<p style="font-size:12.5px;color:var(--ink-2);margin-bottom:10px;line-height:1.5">${esc(r.notes)}</p>` : ''}
+        <div class="pb-foot"><span style="font-size:12px;color:var(--mut);font-weight:700">${esc(r.phone)}</span><span style="font-size:12px;font-weight:700">${esc(r.agentName)}</span></div>
+        <div style="margin-top:10px;padding:8px 11px;border-radius:10px;font-size:12.5px;font-weight:800;display:flex;justify-content:space-between;align-items:center;background:${m.length ? 'var(--emerald-soft)' : 'var(--surface-2)'};color:${m.length ? 'var(--emerald)' : 'var(--mut)'}">
+          <span>${m.length} ${S.lang === 'ku' ? 'عەقاری گونجاو بەردەستە' : 'عقار مطابق متاح'}</span>
+          <span>→</span>
         </div>
       </div></div>`;
     }).join('') || `<div class="empty" style="grid-column:1/-1">${L('noProps')}</div>`}
